@@ -1,5 +1,5 @@
 #!/bin/bash
-# Source2URL:# This tool scans a source code directory and harvests URLs from it
+# Source2URL: This tool scans a source code directory and harvests URLs from it
 # It then makes HTTP requests to each path via a configured proxy
 # The purpose is to aid in content discovery during web assessments
 
