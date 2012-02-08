@@ -4,19 +4,21 @@
 # The purpose is to aid in content discovery during web assessments
 
 # Check for command line arguments
-if [ $# -ne 3 ]
+if [ $# -ne 4 ]
 then
  echo ""
- echo 'Syntax: s2u dir proxy url'
- echo 'Example: s2u /some/path localhost:8080 domain.tld'
+ echo 'Syntax: Source2URL /some/dir root proxy url'
+ echo 'Example: Source2URL ~/downloads/wordpress wordpress localhost:8080 domain.tld'
+ echo "The root is the string that separates the parent directories from what we want."
  echo ""
  exit
 fi
 
 # Define command-line variables
 DIR="$1"
-PROXY="$2"
-URL="$3"
+ROOT="$2"
+PROXY="$3"
+URL="$4"
 
 # Clear the temp file
 echo "" > ./tempdirlist
@@ -31,7 +33,7 @@ echo "Initiating parsing..."
 # Set delimiter for awk for directory cutoff
 for i in `find $DIR -type f`
 do
-        echo $i | awk -F'wordpress/' '{ print $2 }' >> tempdirlist
+        echo $i | awk -F"$ROOT" '{ print $2 }' >> tempdirlist
 done
 
 # Prepend the base URL to the directories
@@ -43,7 +45,7 @@ echo "Making queries..."
 # Make the HTTP queries, quietly
 for i in `cat dirlist.txt`
 do
-        wget --proxy $i > /dev/null 2>&1
+        wget --proxy $i  > /dev/null 2>&1
 done
 
 # Notify on completion.
