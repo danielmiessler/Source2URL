@@ -1,0 +1,50 @@
+#!/bin/bash
+# Source2URL:# This tool scans a source code directory and harvests URLs from it
+# It then makes HTTP requests to each path via a configured proxy
+# The purpose is to aid in content discovery during web assessments
+
+# Check for command line arguments
+if [ $# -ne 3 ]
+then
+ echo ""
+ echo 'Syntax: s2u dir proxy url'
+ echo 'Example: s2u /some/path localhost:8080 domain.tld'
+ echo ""
+ exit
+fi
+
+# Define command-line variables
+DIR="$1"
+PROXY="$2"
+URL="$3"
+
+# Clear the temp file
+echo "" > ./tempdirlist
+
+# Configure the wget proxy
+export http_proxy="$PROXY"
+
+# Notifying on start of work
+echo ""
+echo "Initiating parsing..."
+
+# Set delimiter for awk for directory cutoff
+for i in `find $DIR -type f`
+do
+        echo $i | awk -F'wordpress/' '{ print $2 }' >> tempdirlist
+done
+
+# Prepend the base URL to the directories
+sed -e "s/^/$URL/" tempdirlist > dirlist.txt
+
+# Feedback
+echo "Making queries..."
+
+# Make the HTTP queries, quietly
+for i in `cat dirlist.txt`
+do
+        wget --proxy $i > /dev/null 2>&1
+done
+
+# Notify on completion.
+echo "Process complete..."
